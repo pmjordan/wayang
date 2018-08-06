@@ -1,0 +1,309 @@
+module wayang-hardware {
+    yang-version 1.1;
+    namespace "urn:bt.com:wayang-hardware";
+    prefix wayang;
+    import ietf-hardware {
+        prefix ietfhw;
+        revision-date "2018-01-15";
+    }
+    import ietf-inet-types {
+    prefix inet;
+    }
+    import iana-hardware {
+        prefix ianahw;
+    }
+
+    organization
+        "BT";
+    contact
+        "Paul.M.Jordan@bt.com";
+    description                
+        "This module enhances ietf-hardware to add data useful for planning the devices";
+
+    revision 2018-07-31 {
+        description
+        "added further guidance on presentation attribute";
+    }    
+    revision 2018-07-26 {
+        description
+        "augmentation made conditional so that imported entities can include mandatory elements
+        which causes problems for some parsers but not pyang";
+    }
+    revision 2018-06-06 {
+        description
+        "added hw-rev to permitted-child-type key";
+    }
+    revision 2018-06-04 {
+        description
+        "permitted-child-type now uses compound key of stings (was leafref)";
+    }
+    revision 2018-05-24 {
+        description
+        "mfg-name and model-name no longer mandatory for includes-child-type.
+        includes-child-type now keyed on class and parent-rel-pos
+        renamed includes-child-type/acceptable-child-type to includes-child-type/permitted-child-type";
+    }
+    revision 2018-05-21 {
+        description
+        "Tidy up after changes 2018-05-17";
+    }
+    revision 2018-05-17 {
+        description
+        "Replaced acceptable-child-type leaf-ref by a list";
+    }
+        revision 2018-05-02 {
+        description
+        "Added external-label, removed sku, modified child descriptions";
+    }
+    revision 2018-05-01 {
+        description
+        "Permitted-child-type renamed to allowed-child-type and refeence to TM Forumn";
+    }
+    revision 2018-04-30 {
+        description
+        "Add included component types and SKU";
+    }    
+    revision 2018-04-24 {
+        description
+        "Split data elements dealing with component types from those dealing with component instances";
+    }
+    revision 2018-04-11 {
+        description
+        "Initial revision.";
+    }
+
+
+    /*
+     * Deviations
+     */
+    
+    
+    /*
+    * Groupings
+    */
+    grouping component-type-ref {
+        leaf mfg-name-ref {
+            type leafref {
+                path '/ietfhw:hardware/component-type/mfg-name';
+            }
+        }
+        leaf model-name-ref {
+            type leafref {
+                path '/ietfhw:hardware/component-type/model-name';
+            }
+        }
+        leaf hardware-rev-ref {
+            type leafref {
+                path '/ietfhw:hardware/component-type/hardware-rev';
+            }
+        }
+    }
+    grouping component-type-common-attributes {
+
+        leaf class {
+            type identityref {
+                base ianahw:hardware-class;
+            }
+            mandatory true;
+            description
+            "An indication of the general hardware type of the
+            component type.";
+            reference "RFC 6933: entPhysicalClass";
+        }
+
+        leaf mfg-name {
+            type string;
+            config false;
+            description
+            "The name of the manufacturer of this physical component type.";
+            reference "RFC 8348: mfg-name";
+        }
+
+        leaf model-name {
+            type string;
+            config false;
+            description
+            "The vendor-specific model name identifier string
+            associated with this physical component type.";
+            reference "RFC 8348: model-name";
+        }
+
+        leaf description {
+            type string;
+            config false;
+            mandatory true;
+            description
+            "A textual description of component type.  This node should
+            contain a string that identifies the manufacturer's name
+            for the component and should be set to a distinct value
+            for each version or model of the component.";
+            reference "RFC 6933: entPhysicalDescr";
+        }
+
+
+
+        leaf hardware-rev {
+            type string;
+            config false;
+            description
+            "The vendor-specific hardware revision string for the
+            component type.  The preferred value is the hardware revision
+            identifier that will actually printed on the component instance.";
+            reference "RFC 8348: hardware-rev";
+        }
+
+        leaf firmware-rev {
+            type string;
+            config false;
+            description
+            "The vendor-specific firmware revision string for the
+            component type.";
+            reference "RFC 8348: firmware-rev";
+        }
+
+        leaf software-rev {
+            type string;
+            config false;
+            description
+            "The vendor-specific software revision string for the
+            component type.";
+            reference "RFC 8348: software-rev";
+        }
+
+        leaf is-fru {
+            type boolean;
+            config false;
+            mandatory true;
+            description
+            "This node indicates whether or not this component type is
+            considered a 'field replaceable unit' by the vendor.  If
+            this node contains the value 'true', then this component type
+            identifies a field replaceable unit.  For all component types
+            that are permanently contained within a field replaceable
+            unit, the value 'false' should be returned for this
+            node.";
+            reference "RFC 8348: is-fru";
+        }
+
+        leaf-list uri {
+            type inet:uri;
+            description
+            "This node contains identification information about the
+            component type.";
+            reference "RFC8348: uri";
+        }
+
+        
+        
+
+        leaf external-label {
+            type string;
+            description
+            "A string which records any signwriting or other label provided on the surface of the 
+            component which might be used to identify it .";
+        }
+    }
+    /*
+     * Definitions
+     */
+
+    leaf presentation {
+        description "YANG is normally used to define NETCONF data from a device instance
+        but in this module it may define data received directly from the vendor in which case 
+        there may be no entries in the component list. In such cases this attribute MUST be present 
+        and set to file"; 
+        type enumeration {
+            enum netconf {
+                description "This information is derived from netconf as might be expected from a device instance";
+            }
+            enum file {
+                description "This information has been provided as a file.";
+            }
+        }
+        default netconf;
+        config false;
+    }
+    
+    /*
+     * Augmentations
+     */
+
+
+    augment "/ietfhw:hardware" {
+        when "presentation=file or count(wayang:permitted-child-type)>0";
+        list component-type {
+            key "mfg-name model-name hardware-rev";
+            description
+            "List of component types";
+            config false;
+
+            uses component-type-common-attributes;
+
+            leaf part-number {
+                type string;
+                description "This is a string that defines a manufacturer-allocated part number assigned by the organization that manufactures
+                the hardware item. The remaining notes on this attribute in the reference are not relevant as the other referenced attributes are not present";
+                reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+            }
+
+            list includes-child-type {
+                key "class parent-rel-pos";
+                config false;
+                description
+                "The set of component types which are included as part of this component.
+                items in the list will typically be derived from  IANA hardware class of either 'container' or 'port'  
+                If the child has is-fru=false then it cannot be removed from the parent,
+                for example a slot which cannot be removed from a chassis.";
+                uses component-type-common-attributes;
+                
+                leaf parent-rel-pos {
+                    type int32 {
+                    range "0 .. 2147483647";
+                    }
+                description
+                "An indication of the relative position of this child
+                component type among all its sibling component types.  Sibling
+                component types are defined as component types that:
+
+                    o Share the same value of the 'parent' node 
+                    (which in this context is as being the parent component-type of this includes-child-type); 
+                    
+                    and
+
+                    o Share a common base identity for the 'class' node.";
+                reference "RFC 8348: parent-rel-pos";
+                mandatory true;
+                }
+
+                list permitted-child-type {
+                    uses component-type-ref;
+                    key 'mfg-name-ref model-name-ref hardware-rev-ref';
+                    /* leafref {
+                        path "/ietfhw:hardware/wayang:component-type/wayang:model-name";
+                        // needs to be a compound key
+                        } */
+                    config false;
+                    description
+                    "The set of component types which are allowed to be contained in this component.
+                    Any one of the results of the path reference may be installed at a given time.
+                    All elements returned by the XPATH query are acceptable,
+                    the XPATH statement must include a predicate at least one of a) mfg-name or b) identityref value which infers mfg-name
+                    to ensure uniquness across manufacturers of the other attribute values";
+                    reference "acceptableEquipmentTypeList in TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+                }  
+            }
+        }
+    }
+
+    augment "/ietfhw:hardware/ietfhw:component" {
+		  
+        list permitted-child-type {
+            uses component-type-ref;
+            key 'mfg-name-ref model-name-ref hardware-rev-ref';
+        config false;
+            description "The set of component types which are allowed to be contained in this component.";
+        }
+        
+    }
+
+}
