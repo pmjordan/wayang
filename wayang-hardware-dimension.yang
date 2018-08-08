@@ -1,0 +1,147 @@
+ 
+ 
+module wayang-hardware-dimension {
+    yang-version 1.1;
+    namespace "urn:bt.com:wayang-hardware-dimension";
+    prefix wayang-dimension;
+    import ietf-hardware {
+        prefix ietfhw;
+        revision-date "2018-01-15";
+    }
+    import wayang-hardware {
+        prefix wayanghw;
+        revision-date "2018-07-31";
+    }
+
+    organization
+        "BT";
+    contact
+        "Paul.M.Jordan@bt.com";
+    description               
+        "This module enhances wayang-hardware to add optional data related to dimension and orientation of componets";
+        
+    revision 2018-08-08 {
+        description
+        "First draft for discussion";
+    }
+
+    typedef lengthMeasurementUnits {
+        description "The units for depth, height and/or width";
+        reference "MeasurementUnits in Hardware section of TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+        /* YANG 'units' keyword is not used as there is then no way to restrict the textual value of the units value to the list enumerated in the reference*/
+        type enumeration {  
+            enum Unknown {
+                description "Can also be used for not measured";
+                value 0;
+            }
+            enum inches {
+                value 1;
+            }
+            enum feet {
+                value 2;
+            }
+            enum millimeters {
+                value 3;
+            }
+            enum centimeters {
+                value 4;
+            }
+            enum meters {
+                value 5;
+            }  
+        }
+    }
+
+            
+    grouping offset {
+        description "The distance from one point in space to another point expressed in X,Y and Z coordinates";
+        leaf offsetMeasurementUnits {
+            type lengthMeasurementUnits;
+            description "The units for the units for the X, Y and Z dimensions";
+            mandatory true;
+        }
+        leaf xOffset {
+            type decimal64 {
+                /* using a type of number is more appropriate to a distance measurement than string as used in overall-size
+                decimal64  is the base YANG type for number*/
+                fraction-digits 2;
+                /* use of faction-digits is mandatory when using decimal64. Where not appropriate for a particular useage of offset then
+                it may be subject of a deviation statement to change it to a more suitable value in that situation*/
+            }
+            mandatory true;
+        }       
+        leaf yOffset {
+            type decimal64 {
+                fraction-digits 2;
+            }
+            mandatory true;
+        }
+        leaf zOffset {
+            type decimal64 {
+                fraction-digits 2;
+            }
+            mandatory true;
+        }
+    }
+
+    augment "/ietfhw:hardware/wayanghw:component-type" {
+        container overall-size {
+            description "The overall size measurement in the X (width), Y (height), and Z (depth) axes expressed in the declared units";
+                reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+            leaf depth {
+                type string;
+                description "type is string for consientency with the reference but values expected to be numbers";
+            }
+            leaf height {
+                type string;
+                description "type is string for consientency with the reference but values expected to be numbers";
+            }
+            leaf measurementUnits {
+                description "The units for depth, height and/or width";
+                must '(string-length(depth) >0 or string-length(height) >0 or string-length(width)>0) and string-length(measurementUnits) > 0' {
+                    description "Must be present if any one of depth, height or width are present";
+                    error-message "Units must be quoted for overall size values";
+                }
+                type lengthMeasurementUnits;
+            }
+            leaf width {
+                type string;
+                description "type is string for consientency with the reference but values expected to be numbers";
+            }
+        }
+        container mass {
+            description "The overall weight expressed in the declared units";
+                reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+            leaf weight {
+                type string;
+                description "type is string for consientency with the reference but values expected to be numbers";
+            }
+            leaf weightUnits {
+                description "Units for the value of weight";
+                must '(string-length(weight) >0 and string-length(measurementUnits) > 0) or measurementUnits="Unknown"' {
+                    description "Must be present if weight is present";
+                    error-message "Units must be quoted for weight value";
+                }
+                type enumeration {  
+                    enum Unknown {
+                        description "Can also be used for not measured";
+                        value 0;
+                    }
+                    enum ounces {
+                        value 1;
+                    }
+                    enum pounds {
+                        value 2;
+                    }
+                    enum grams {
+                        value 3;
+                    }
+                    enum kilograms {
+                        value 4;
+                    }
+                }
+            }
+        }
+    }
+}
+ 
