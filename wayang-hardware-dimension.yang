@@ -51,74 +51,20 @@ module wayang-hardware-dimension {
             }  
         }
     }
-
-            
-    grouping offset {
-        description "The distance from one point in space to another point expressed in X,Y and Z coordinates";
-        leaf offsetMeasurementUnits {
-            type lengthMeasurementUnits;
-            description "The units for the units for the X, Y and Z dimensions";
-            config false;
-            must '(xOffset >= 0 and yOffset >= 0 and zOffset >= 0) and (string-length(offsetMeasurementUnits) > 0) and not(offsetMeasurementUnits="Unknown"))' {
-                description "Units must be supplied if offset values are used";
-                error-message "Units must be quoted for offset values";
+    typedef angle-unit {
+        description "The units for measureing angles";
+        type enumeration {  
+            enum Unknown {
+                value 0;
+            }
+            enum radians {
+                value 1;
+            }
+            enum degrees {
+                value 2;  
             }
         }
-        leaf xOffset {
-            type decimal64 {
-                /* using a type of number is more appropriate to a distance measurement than string as used in overall-size
-                decimal64  is the base YANG type for number*/
-                fraction-digits 2;
-                /* use of faction-digits is mandatory when using decimal64. Where not appropriate for a particular useage of offset then
-                it may be subject of a deviation statement to change it to a more suitable value in that situation*/
-            }
-            config false;
-            must '(xOffset >= 0 and yOffset >= 0 and zOffset >= 0)' {
-                description "If offset is used then there must be a value of X,Y and Z";
-                error-message "Values must be supplied for all three dimensions of the offset";
-            }
-        }       
-        leaf yOffset {
-            type decimal64 {
-                fraction-digits 2;
-            }
-            config false;
-        }
-        leaf zOffset {
-            type decimal64 {
-                fraction-digits 2;
-            }
-            config false;
-        }
-    }
-
-    grouping overall-size {
-        description "The overall size measurement in the X (width), Y (height), and Z (depth) axes expressed in the declared units";
-            reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
-        leaf depth {
-            type string;
-            description "type is string for consientency with the reference but values expected to be numbers";
-            config false;
-        }
-        leaf height {
-            type string;
-            description "type is string for consientency with the reference but values expected to be numbers";
-            config false;
-        }
-        leaf measurementUnits {
-            description "The units for depth, height and/or width";
-            config false;
-            type lengthMeasurementUnits;
-            must '(string-length(depth) >0 or string-length(height) >0 or string-length(width)>0) and string-length(measurementUnits) > 0' {
-                description "Must be present if any one of depth, height or width are present";
-                error-message "Units must be quoted for overall size values";
-            }
-        }
-        leaf width {
-            type string;
-            description "type is string for consientency with the reference but values expected to be numbers";
-            config false;
-        }
+        default degrees;
     }
 
     grouping mass {
@@ -156,6 +102,108 @@ module wayang-hardware-dimension {
             }
         }
     }
+        
+    grouping overall-size {
+        description "The overall size measurement in the X (width), Y (height), and Z (depth) axes expressed in the declared units";
+            reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+        leaf depth {
+            type string;
+            description "type is string for consientency with the reference but values expected to be numbers";
+            config false;
+        }
+        leaf height {
+            type string;
+            description "type is string for consientency with the reference but values expected to be numbers";
+            config false;
+        }
+        leaf measurementUnits {
+            description "The units for depth, height and/or width";
+            config false;
+            type lengthMeasurementUnits;
+            must '(string-length(depth) >0 or string-length(height) >0 or string-length(width)>0) and string-length(measurementUnits) > 0' {
+                description "Must be present if any one of depth, height or width are present";
+                error-message "Units must be quoted for overall size values";
+            }
+        }
+        leaf width {
+            type string;
+            description "type is string for consientency with the reference but values expected to be numbers";
+            config false;
+        }
+    }
+            
+    grouping offset {
+        description "The distance from one point in space to another point expressed in X,Y and Z coordinates";
+        leaf offsetMeasurementUnits {
+            type lengthMeasurementUnits;
+            description "The units for the units for the X, Y and Z dimensions";
+            config false;
+            must '(x-offset >= 0 and y-offset >= 0 and z-offset >= 0) and (string-length(offsetMeasurementUnits) > 0) and not(offsetMeasurementUnits="Unknown"))' {
+                description "Units must be supplied if offset values are used";
+                error-message "Units must be quoted for offset values";
+            }
+        }
+        leaf x-offset {
+            type decimal64 {
+                /* using a type of number is more appropriate to a distance measurement than string as used in overall-size
+                decimal64  is the base YANG type for number*/
+                fraction-digits 2;
+                /* use of faction-digits is mandatory when using decimal64. Where not appropriate for a particular useage of offset then
+                it may be subject of a deviation statement to change it to a more suitable value in that situation*/
+            }
+            config false;
+            must '(x-offset >= 0 and y-offset >= 0 and z-offset >= 0)' {
+                description "If offset is used then there must be a value of X,Y and Z";
+                error-message "Values must be supplied for all three dimensions of the offset";
+            }
+        }       
+        leaf y-offset {
+            type decimal64 {
+                fraction-digits 2;
+            }
+            config false;
+        }
+        leaf z-offset {
+            type decimal64 {
+                fraction-digits 2;
+            }
+            config false;
+        }
+    }
+
+    grouping orientation {
+        description "Used to describe how a component is installed in its parent
+        Not required if the depth, height and width defined by the component-type size
+        correspond to the X,Y and Z dimensions when installed. 
+        The spherical coordinates to transform the orientation of the component-type to the installed postion.
+        For example a card-type defined vertically but installed horizontaly would have a value of
+        polar=0, azimuth=-90, r=1 ";
+        
+        leaf orientation-measurement-unit {
+            type angle-unit;
+            config false;
+        }
+        leaf polar {
+            type uint8;
+            config false;
+        }
+        leaf azimuth {
+            type uint8;
+            config false;
+        }
+        leaf radius {
+            type uint8;
+            config false;
+            must 'radius = 1' {
+                description "radius is not required to express orinetation and is only included for completeness";
+                error-message "Radius must be set to 1";
+            }
+        }       
+    }
+
+
+
+
 
     augment "/ietfhw:hardware/ietfhw:component" {
         uses overall-size {
@@ -170,6 +218,36 @@ module wayang-hardware-dimension {
             The origin is where the overall measurement axes meet at zero 
             i.e. front, bottom, left of the cuboid which encloses the component";
             uses offset;
+        }
+        container orientation {
+            description "Used to describe how a component is installed in its parent
+            Not required if the depth, height and width defined by the component-type size
+            correspond to the X,Y and Z dimensions when installed. 
+            The spherical coordinates to rotate the component-type defintion about its origin into its installed postion.
+            For example a card-type defined vertically but installed horizontally would have a value of
+            polar=0, azimuth=-90 degrees, r=1 ";
+            leaf orientation-measurement-unit {
+                type angle-unit;
+                config false;
+            }
+            leaf polar {
+                type uint8;
+                config false;
+                /* to do - add range restriction based on choice of units */
+            }
+            leaf azimuth {
+                type uint8;
+                config false;
+                /* to do - add range restriction based on choice of units */
+            }
+            leaf radius {
+                type uint8;
+                config false;
+                must 'radius = 1' {
+                    description "radius is not required to express orinetation and is only included for completeness";
+                    error-message "Radius must be set to 1";
+                }
+            }
         }
     }
     
