@@ -58,7 +58,11 @@ module wayang-hardware-dimension {
         leaf offsetMeasurementUnits {
             type lengthMeasurementUnits;
             description "The units for the units for the X, Y and Z dimensions";
-            mandatory true;
+            config false;
+            must '(xOffset >= 0 and yOffset >= 0 and zOffset >= 0) and (string-length(offsetMeasurementUnits) > 0) and not(offsetMeasurementUnits="Unknown"))' {
+                description "Units must be supplied if offset values are used";
+                error-message "Units must be quoted for offset values";
+            }
         }
         leaf xOffset {
             type decimal64 {
@@ -68,19 +72,23 @@ module wayang-hardware-dimension {
                 /* use of faction-digits is mandatory when using decimal64. Where not appropriate for a particular useage of offset then
                 it may be subject of a deviation statement to change it to a more suitable value in that situation*/
             }
-            mandatory true;
+            config false;
+            must '(xOffset >= 0 and yOffset >= 0 and zOffset >= 0)' {
+                description "If offset is used then there must be a value of X,Y and Z";
+                error-message "Values must be supplied for all three dimensions of the offset";
+            }
         }       
         leaf yOffset {
             type decimal64 {
                 fraction-digits 2;
             }
-            mandatory true;
+            config false;
         }
         leaf zOffset {
             type decimal64 {
                 fraction-digits 2;
             }
-            mandatory true;
+            config false;
         }
     }
 
@@ -90,22 +98,26 @@ module wayang-hardware-dimension {
         leaf depth {
             type string;
             description "type is string for consientency with the reference but values expected to be numbers";
+            config false;
         }
         leaf height {
             type string;
             description "type is string for consientency with the reference but values expected to be numbers";
+            config false;
         }
         leaf measurementUnits {
             description "The units for depth, height and/or width";
+            config false;
+            type lengthMeasurementUnits;
             must '(string-length(depth) >0 or string-length(height) >0 or string-length(width)>0) and string-length(measurementUnits) > 0' {
                 description "Must be present if any one of depth, height or width are present";
                 error-message "Units must be quoted for overall size values";
             }
-            type lengthMeasurementUnits;
         }
         leaf width {
             type string;
             description "type is string for consientency with the reference but values expected to be numbers";
+            config false;
         }
     }
 
@@ -115,9 +127,11 @@ module wayang-hardware-dimension {
         leaf weight {
             type string;
             description "type is string for consientency with the reference but values expected to be numbers";
+            config false;
         }
         leaf weightUnits {
             description "Units for the value of weight";
+            config false;
             must '(string-length(weight) >0 and string-length(measurementUnits) > 0) or measurementUnits="Unknown"' {
                 description "Must be present if weight is present";
                 error-message "Units must be quoted for weight value";
@@ -144,14 +158,39 @@ module wayang-hardware-dimension {
     }
 
     augment "/ietfhw:hardware/ietfhw:component" {
-        uses overall-size;
+        uses overall-size {
+            description "The dimensions of the component when installed. 
+            For example a card may be installed vertically or horizontally and so XY and Z values from the
+            component-type may be used in a different order when instantiated as a component.
+            If installed off-axis the values will also change.";
+        }
         uses mass;
+        container offset-from-parent {
+            description "The distance from the origin of the parent component to the origin of the this component.
+            The origin is where the overall measurement axes meet at zero 
+            i.e. front, bottom, left of the cuboid which encloses the component";
+            uses offset;
+        }
     }
     
     augment "/ietfhw:hardware/wayanghw:component-type" {
-        uses overall-size;
-        uses mass;
+        uses overall-size {
+            description "The dimensions of components of this type. 
+            The choice of orientation should reflect the orientation expected to be most common
+            when compoents of this type are installed";
+            }
+        uses mass {
+            description "The weight of components of this type";
+        }
+    }
 
+    augment "/ietfhw:hardware/wayanghw:component-type/wayanghw:includes-child-type" {
+        container included-child-offset-from-parent {
+            description "The distance from the origin of the parent component to the origin of the included child component.
+            The origin is where the overall measurement axes meet at zero 
+            i.e. front, bottom, left of the cuboid which encloses the component";
+            uses offset;
+        }
     }
 }
  
