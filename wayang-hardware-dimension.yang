@@ -84,64 +84,74 @@ module wayang-hardware-dimension {
         }
     }
 
+    grouping overall-size {
+        description "The overall size measurement in the X (width), Y (height), and Z (depth) axes expressed in the declared units";
+            reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+        leaf depth {
+            type string;
+            description "type is string for consientency with the reference but values expected to be numbers";
+        }
+        leaf height {
+            type string;
+            description "type is string for consientency with the reference but values expected to be numbers";
+        }
+        leaf measurementUnits {
+            description "The units for depth, height and/or width";
+            must '(string-length(depth) >0 or string-length(height) >0 or string-length(width)>0) and string-length(measurementUnits) > 0' {
+                description "Must be present if any one of depth, height or width are present";
+                error-message "Units must be quoted for overall size values";
+            }
+            type lengthMeasurementUnits;
+        }
+        leaf width {
+            type string;
+            description "type is string for consientency with the reference but values expected to be numbers";
+        }
+    }
+
+    grouping mass {
+        description "The overall weight expressed in the declared units";
+            reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
+        leaf weight {
+            type string;
+            description "type is string for consientency with the reference but values expected to be numbers";
+        }
+        leaf weightUnits {
+            description "Units for the value of weight";
+            must '(string-length(weight) >0 and string-length(measurementUnits) > 0) or measurementUnits="Unknown"' {
+                description "Must be present if weight is present";
+                error-message "Units must be quoted for weight value";
+            }
+            type enumeration {  
+                enum Unknown {
+                    description "Can also be used for not measured";
+                    value 0;
+                }
+                enum ounces {
+                    value 1;
+                }
+                enum pounds {
+                    value 2;
+                }
+                enum grams {
+                    value 3;
+                }
+                enum kilograms {
+                    value 4;
+                }
+            }
+        }
+    }
+
+    augment "/ietfhw:hardware/ietfhw:component" {
+        uses overall-size;
+        uses mass;
+    }
+    
     augment "/ietfhw:hardware/wayanghw:component-type" {
-        container overall-size {
-            description "The overall size measurement in the X (width), Y (height), and Z (depth) axes expressed in the declared units";
-                reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
-            leaf depth {
-                type string;
-                description "type is string for consientency with the reference but values expected to be numbers";
-            }
-            leaf height {
-                type string;
-                description "type is string for consientency with the reference but values expected to be numbers";
-            }
-            leaf measurementUnits {
-                description "The units for depth, height and/or width";
-                must '(string-length(depth) >0 or string-length(height) >0 or string-length(width)>0) and string-length(measurementUnits) > 0' {
-                    description "Must be present if any one of depth, height or width are present";
-                    error-message "Units must be quoted for overall size values";
-                }
-                type lengthMeasurementUnits;
-            }
-            leaf width {
-                type string;
-                description "type is string for consientency with the reference but values expected to be numbers";
-            }
-        }
-        container mass {
-            description "The overall weight expressed in the declared units";
-                reference "TM Forum GB922 Physical Resource R17.5 https://www.tmforum.org/resources/suite/gb922-information-framework-models-r17-5-0/";
-            leaf weight {
-                type string;
-                description "type is string for consientency with the reference but values expected to be numbers";
-            }
-            leaf weightUnits {
-                description "Units for the value of weight";
-                must '(string-length(weight) >0 and string-length(measurementUnits) > 0) or measurementUnits="Unknown"' {
-                    description "Must be present if weight is present";
-                    error-message "Units must be quoted for weight value";
-                }
-                type enumeration {  
-                    enum Unknown {
-                        description "Can also be used for not measured";
-                        value 0;
-                    }
-                    enum ounces {
-                        value 1;
-                    }
-                    enum pounds {
-                        value 2;
-                    }
-                    enum grams {
-                        value 3;
-                    }
-                    enum kilograms {
-                        value 4;
-                    }
-                }
-            }
-        }
+        uses overall-size;
+        uses mass;
+
     }
 }
  
