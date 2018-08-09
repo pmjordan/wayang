@@ -18,8 +18,13 @@ module wayang-hardware {
     contact
         "Paul.M.Jordan@bt.com";
     description                
-        "This module enhances ietf-hardware to add data useful for planning the devices";
+        "This module enhances ietf-hardware to add data useful for planning the devices
+        see https://github.com/pmjordan/wayang";
 
+    revision 2018-08-09 {
+        description
+        "added reference to github";
+    }
     revision 2018-07-31 {
         description
         "added further guidance on presentation attribute";

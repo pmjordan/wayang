@@ -10,7 +10,7 @@ module wayang-hardware-dimension {
     }
     import wayang-hardware {
         prefix wayanghw;
-        revision-date "2018-07-31";
+        revision-date "2018-08-09";
     }
 
     organization
@@ -18,12 +18,14 @@ module wayang-hardware-dimension {
     contact
         "Paul.M.Jordan@bt.com";
     description               
-        "This module enhances wayang-hardware to add optional data related to dimension and orientation of componets";
+        "This module enhances wayang-hardware to add optional size, orientation and weight data to componets and component types.
+        see https://github.com/pmjordan/wayang/DIMENSION.md";
         
-    revision 2018-08-08 {
+    revision 2018-08-09 {
         description
         "First draft for discussion";
     }
+
 
     typedef lengthMeasurementUnits {
         description "The units for depth, height and/or width";
@@ -172,14 +174,12 @@ module wayang-hardware-dimension {
     }
 
     grouping orientation {
-        description "Used to describe how a component is installed in its parent
-        Not required if the depth, height and width defined by the component-type size
-        correspond to the X,Y and Z dimensions when installed. 
-        The spherical coordinates to transform the orientation of the component-type to the installed postion.
-        For example a card-type defined vertically but installed horizontaly would have a value of
-        polar=0, azimuth=-90, r=1 ";
-        
-        leaf orientation-measurement-unit {
+        description "The spherical coordinates to rotate a component around its origin";
+        leaf azimuth {
+            type uint8;
+            config false;
+        }
+        leaf orientation-angle-unit {
             type angle-unit;
             config false;
         }
@@ -187,17 +187,10 @@ module wayang-hardware-dimension {
             type uint8;
             config false;
         }
-        leaf azimuth {
-            type uint8;
-            config false;
-        }
         leaf radius {
+            description "radius is not required to express orientation and is only included for completeness";
             type uint8;
             config false;
-            must 'radius = 1' {
-                description "radius is not required to express orinetation and is only included for completeness";
-                error-message "Radius must be set to 1";
-            }
         }       
     }
 
@@ -223,39 +216,20 @@ module wayang-hardware-dimension {
             description "Used to describe how a component is installed in its parent
             Not required if the depth, height and width defined by the component-type size
             correspond to the X,Y and Z dimensions when installed. 
-            The spherical coordinates to rotate the component-type defintion about its origin into its installed postion.
-            For example a card-type defined vertically but installed horizontally would have a value of
-            polar=0, azimuth=-90 degrees, r=1 ";
-            leaf orientation-measurement-unit {
-                type angle-unit;
-                config false;
-            }
-            leaf polar {
-                type uint8;
-                config false;
-                /* to do - add range restriction based on choice of units */
-            }
-            leaf azimuth {
-                type uint8;
-                config false;
-                /* to do - add range restriction based on choice of units */
-            }
-            leaf radius {
-                type uint8;
-                config false;
-                must 'radius = 1' {
-                    description "radius is not required to express orinetation and is only included for completeness";
-                    error-message "Radius must be set to 1";
-                }
-            }
+            The spherical coordinates to transform the orientation of the component-type to the installed postion.
+            For example a card-type defined vertically but installed horizontaly would have a value of
+            polar=0, azimuth=-90, r=1 ,
+            a card installed in a rear facing slot would have values of
+            polar=180, azimuth=0, r=1";
+            uses orientation;
         }
     }
     
     augment "/ietfhw:hardware/wayanghw:component-type" {
         uses overall-size {
             description "The dimensions of components of this type. 
-            The choice of orientation should reflect the orientation expected to be most common
-            when compoents of this type are installed";
+            The choice of which dimension to record as depth, height and width should reflect 
+            the orientation expected to be most common when components of this type are installed";
             }
         uses mass {
             description "The weight of components of this type";
@@ -264,10 +238,16 @@ module wayang-hardware-dimension {
 
     augment "/ietfhw:hardware/wayanghw:component-type/wayanghw:includes-child-type" {
         container included-child-offset-from-parent {
-            description "The distance from the origin of the parent component to the origin of the included child component.
+            description "The distance from the origin of the parent component to the origin of the 
+            included child component.
             The origin is where the overall measurement axes meet at zero 
             i.e. front, bottom, left of the cuboid which encloses the component";
             uses offset;
+        }
+        container included-child-orientation {
+            description "Only required when included child is orientated off the X,Y,Z axis
+            applies a rotation to the size values";
+            uses orientation;
         }
     }
 }

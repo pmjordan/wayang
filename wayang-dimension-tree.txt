@@ -1,0 +1,91 @@
+module: ietf-hardware
+  +--rw hardware
+     +--ro last-change?             yang:date-and-time
+     +--rw component* [name]
+     |  +--rw name                                   string
+     |  +--rw class                                  identityref
+     |  +--ro description?                           string
+     |  +--rw parent?                                -> ../../component/name
+     |  +--rw parent-rel-pos?                        int32
+     |  +--ro contains-child*                        -> ../../component/name
+     |  +--ro hardware-rev?                          string
+     |  +--ro firmware-rev?                          string
+     |  +--ro software-rev?                          string
+     |  +--ro serial-num?                            string
+     |  +--ro mfg-name?                              string
+     |  +--ro model-name?                            string
+     |  +--rw alias?                                 string
+     |  +--rw asset-id?                              string
+     |  +--ro is-fru?                                boolean
+     |  +--ro mfg-date?                              yang:date-and-time
+     |  +--rw uri*                                   inet:uri
+     |  +--ro uuid?                                  yang:uuid
+     |  +--ro wayang:permitted-child-type* [mfg-name-ref model-name-ref hardware-rev-ref]
+     |  |  +--ro wayang:mfg-name-ref        -> /ietfhw:hardware/component-type/mfg-name
+     |  |  +--ro wayang:model-name-ref      -> /ietfhw:hardware/component-type/model-name
+     |  |  +--ro wayang:hardware-rev-ref    -> /ietfhw:hardware/component-type/hardware-rev
+     |  +--ro wayang-dimension:depth?                string
+     |  +--ro wayang-dimension:height?               string
+     |  +--ro wayang-dimension:measurementUnits?     lengthMeasurementUnits
+     |  +--ro wayang-dimension:width?                string
+     |  +--ro wayang-dimension:weight?               string
+     |  +--ro wayang-dimension:weightUnits?          enumeration
+     |  +--rw wayang-dimension:offset-from-parent
+     |  |  +--ro wayang-dimension:offsetMeasurementUnits?   lengthMeasurementUnits
+     |  |  +--ro wayang-dimension:x-offset?                 decimal64
+     |  |  +--ro wayang-dimension:y-offset?                 decimal64
+     |  |  +--ro wayang-dimension:z-offset?                 decimal64
+     |  +--rw wayang-dimension:orientation
+     |     +--ro wayang-dimension:azimuth?                  uint8
+     |     +--ro wayang-dimension:orientation-angle-unit?   angle-unit
+     |     +--ro wayang-dimension:polar?                    uint8
+     |     +--ro wayang-dimension:radius?                   uint8
+     +--ro wayang:component-type* [mfg-name model-name hardware-rev]
+        +--ro wayang:class                         identityref
+        +--ro wayang:mfg-name                      string
+        +--ro wayang:model-name                    string
+        +--ro wayang:description                   string
+        +--ro wayang:hardware-rev                  string
+        +--ro wayang:firmware-rev?                 string
+        +--ro wayang:software-rev?                 string
+        +--ro wayang:is-fru                        boolean
+        +--ro wayang:uri*                          inet:uri
+        +--ro wayang:external-label?               string
+        +--ro wayang:part-number?                  string
+        +--ro wayang:includes-child-type* [class parent-rel-pos]
+        |  +--ro wayang:class                                          identityref
+        |  +--ro wayang:mfg-name?                                      string
+        |  +--ro wayang:model-name?                                    string
+        |  +--ro wayang:description                                    string
+        |  +--ro wayang:hardware-rev?                                  string
+        |  +--ro wayang:firmware-rev?                                  string
+        |  +--ro wayang:software-rev?                                  string
+        |  +--ro wayang:is-fru                                         boolean
+        |  +--ro wayang:uri*                                           inet:uri
+        |  +--ro wayang:external-label?                                string
+        |  +--ro wayang:parent-rel-pos                                 int32
+        |  +--ro wayang:permitted-child-type* [mfg-name-ref model-name-ref hardware-rev-ref]
+        |  |  +--ro wayang:mfg-name-ref        -> /ietfhw:hardware/component-type/mfg-name
+        |  |  +--ro wayang:model-name-ref      -> /ietfhw:hardware/component-type/model-name
+        |  |  +--ro wayang:hardware-rev-ref    -> /ietfhw:hardware/component-type/hardware-rev
+        |  +--ro wayang-dimension:included-child-offset-from-parent
+        |  |  +--ro wayang-dimension:offsetMeasurementUnits?   lengthMeasurementUnits
+        |  |  +--ro wayang-dimension:x-offset?                 decimal64
+        |  |  +--ro wayang-dimension:y-offset?                 decimal64
+        |  |  +--ro wayang-dimension:z-offset?                 decimal64
+        |  +--ro wayang-dimension:included-child-orientation
+        |     +--ro wayang-dimension:azimuth?                  uint8
+        |     +--ro wayang-dimension:orientation-angle-unit?   angle-unit
+        |     +--ro wayang-dimension:polar?                    uint8
+        |     +--ro wayang-dimension:radius?                   uint8
+        +--ro wayang-dimension:depth?              string
+        +--ro wayang-dimension:height?             string
+        +--ro wayang-dimension:measurementUnits?   lengthMeasurementUnits
+        +--ro wayang-dimension:width?              string
+        +--ro wayang-dimension:weight?             string
+        +--ro wayang-dimension:weightUnits?        enumeration
+
+  notifications:
+    +---n hardware-state-change
+module: wayang-hardware
+  +--ro presentation?   enumeration

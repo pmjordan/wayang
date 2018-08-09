@@ -7,3 +7,13 @@ physical containment stuctures of a given device, for example what cards are all
 The project name comes from Wayang a form of puppet theatre art found in Indonsia (Wikipedia, The Free Encyclopedia 17 Feb 2018) and is used for its association with YANG and giving designers closer control. 
 
 "With WAYANG you pull the strings"
+
+For commentary on the various modules see the pages listed below:
+
+HARDWARE.md
+
+DIMENSION.md
+
+as well as 
+
+LICENCE.md
