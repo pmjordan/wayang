@@ -10,10 +10,10 @@ The project name comes from Wayang a form of puppet theatre art found in Indonsi
 
 For commentary on the various modules see the pages listed below:
 
-HARDWARE.md
+[HARDWARE.md](HARDWARE.md)
 
-DIMENSION.md
+[DIMENSION.md](DIMENSION.md)
 
 as well as 
 
-LICENCE.md
+[LICENCE.md](LICENCE.md)
