@@ -22,3 +22,4 @@ Future modules could cover areas such as
 - air flow management
 - cable management
 - hardware/software compatibilities
+- performance limitations imposed by compnent incommpatibilities
