@@ -12,7 +12,7 @@ For commentary on the various modules see the pages listed below:
 
 [HARDWARE.md](HARDWARE.md)
 
-[DIMENSION.md](DIMENSION.md)
+[DIMENSION.md](DIMENSION.md) (work in progress)
 
 as well as 
 
