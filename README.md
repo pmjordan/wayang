@@ -19,6 +19,6 @@ as well as
 [LICENCE.md](LICENCE.md)
 
 Future modules could cover areas such as 
-air flow management
-cable management
-hardware/software compatibilities
+- air flow management
+- cable management
+- hardware/software compatibilities
