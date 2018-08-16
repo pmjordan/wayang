@@ -17,3 +17,8 @@ For commentary on the various modules see the pages listed below:
 as well as 
 
 [LICENCE.md](LICENCE.md)
+
+Future modules could cover areas such as 
+air flow management
+cable management
+hardware/software compatibilities
