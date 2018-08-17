@@ -23,3 +23,5 @@ Future modules could cover areas such as
 - cable management
 - hardware/software compatibilities
 - performance limitations imposed by component incompatibilities
+- hardware cross dependancies
+
