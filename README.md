@@ -1,5 +1,7 @@
+# Since creating this project I have become aware of a standard which appears to meet the need. Please see [DTMF Redfish](https://www.dmtf.org/standards/redfish)#<br><br><br>
+
 The TM Forum are considering 'Model-driven Onboarding of Phyisically Oriented Resources', see 
-http://projects.tmforum.org/wiki/display/ODA/Model-driven+Onboarding+of+Phyisically+Oriented+Resources
+http://projects.tmforum.org/wiki/display/ODA/Model-driven+Onboarding+of+Phyisically+Oriented+Resources  
 
 This repo contains a proposed extension of RFC 8348 to hold information on possible
 physical containment stuctures of a given device, for example what cards are allowed in a given slot of a chassis.
